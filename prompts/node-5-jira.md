@@ -59,6 +59,40 @@ STEP 3: ZERO-INFERENCE MAPPING
 2. If a database column, API verb, or data model is missing from the upstream digests, you must output exactly: "[TBD - ARCHITECT TO SUPPLY]". Do not hallucinate endpoints, schemas, or field names under any circumstance.
 
 ==================================================
+STEP 3B: DoR REFERENCE INGESTION
+==================================================
+
+Before computing readiness, resolve which additional criteria apply.
+Both sources below are cumulative, not either/or — apply whichever are
+present:
+
+1. PROJECT-SPECIFIC: If `references/dor-checklist.md` is present, treat
+   every criterion it defines as additional to Step 4's built-in checks.
+   Tag each: "[PROJECT DoR CRITERION]".
+2. GLOBAL BASELINE: If `references/global-standards.md` is present,
+   apply its Universal DoR checklist as additional criteria too, tagged
+   "[GLOBAL DoR CRITERION]" — but two of its five items already have
+   built-in equivalents in Step 4 and must NOT be counted twice:
+   "Sign-off" duplicates the Accountable Owner check, and "NFR
+   Attachment" duplicates Section 4 of this ticket. Skip re-checking
+   those two. The genuinely new checks to apply from this checklist:
+   - Scope Isolation: the target story satisfies INVEST (this should
+     already hold from Node 3's slicing — flag FAIL only if it visibly
+     doesn't).
+   - Dependency Map fully unblocked: every entry in Node 3's Dependency
+     Map is actually resolved, not merely listed. Any dependency still
+     open is a FAIL on this criterion specifically — this is a real
+     check this node did not previously perform.
+   - Acceptance Criteria coverage: 100% of the story's functional
+     requirements are mapped to Gherkin scenarios (cross-check against
+     Node 4's output).
+3. Neither source can replace or relax Step 4's built-in checks — they
+   can only add new ways for a ticket to become BLOCKED, never new ways
+   to become READY FOR SPRINT.
+4. List every criterion actually checked from either source, marked
+   PASS or FAIL, in the final output.
+
+==================================================
 STEP 4: DEFINITION OF READY (DoR) COMPUTATION
 ==================================================
 
@@ -67,14 +101,15 @@ STEP 4: DEFINITION OF READY (DoR) COMPUTATION
 1. Count every literal occurrence of "[TBD - ARCHITECT TO SUPPLY]" in the assembled ticket body.
 2. Count every literal occurrence of "[BA TO CONFIRM]" in the assembled ticket body.
 3. Check whether DSM_Tier resolved to an actual value (High/Medium/Low) rather than a placeholder.
-4. Check whether Accountable Owner resolved to an actual name/title rather than "MISSING" or a placeholder.
-5. Sum the counts from steps 1–2 into a single "Unresolved Tokens" number.
-6. Apply exactly this logic:
-   - If Unresolved Tokens > 0, OR DSM_Tier is unresolved, OR Accountable Owner is unresolved:
+4. Check whether Accountable Owner resolved to an actual, human-confirmed name/title rather than "MISSING", a placeholder, or an unconfirmed pre-fill/hint.
+5. Check every criterion resolved in Step 3B, if any were loaded.
+6. Sum the counts from steps 1–2 into a single "Unresolved Tokens" number.
+7. Apply exactly this logic:
+   - If Unresolved Tokens > 0, OR DSM_Tier is unresolved, OR Accountable Owner is unresolved, OR any Step 3B criterion is FAIL:
      → Ticket Status: BLOCKED
    - Otherwise:
      → Ticket Status: READY FOR SPRINT
-7. Do not set READY FOR SPRINT if any check in steps 3–4 fails, even if Unresolved Tokens is 0.
+8. Do not set READY FOR SPRINT if any check in steps 3–5 fails, even if Unresolved Tokens is 0.
 
 ==================================================
 STEP 5: OUTPUT FORMAT & TICKET SYNTHESIS
@@ -122,6 +157,8 @@ raci_governance:
   accountable_owner: ""   # Name/Role, from Node 1
   dsm_classification: ""  # High/Medium/Low, confirmed in Step 2
 
+org_dor_criteria: []      # each entry "[PROJECT DoR CRITERION]" or "[GLOBAL DoR CRITERION] <name>: PASS/FAIL", per Step 3B; empty list if no reference file was present
+
 ticket_status: ""        # BLOCKED / READY FOR SPRINT — per Step 4 computation, not discretionary
 unresolved_tokens: 0     # exact count from Step 4
 ```
@@ -142,6 +179,7 @@ do rather than doing it, delete that sentence instead.
 OPERATIONAL RULES:
 ==================================================
 
+- REFERENCE PRECEDENCE: references/dor-checklist.md and references/global-standards.md can only add requirements, never waive one. Neither can cause a ticket to skip the token-count, DSM, or Accountable Owner checks in Step 4.
 - ZERO-INFERENCE: Never populate a technical field with a plausible-sounding guess. Use "[TBD - ARCHITECT TO SUPPLY]" whenever the upstream digests don't explicitly state it.
 - STATUS INTEGRITY: The BLOCKED / READY FOR SPRINT determination follows Step 4 mechanically. Do not soften a BLOCKED status because the ticket "looks mostly done."
 - FINAL NODE: This is the last node in the pipeline. There is no further handoff — the output above is the deliverable itself. If Ticket Status is BLOCKED, explicitly tell the user what must be resolved (list each unresolved token and the missing RACI/DSM field by name) before this ticket can move to READY FOR SPRINT.

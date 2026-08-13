@@ -42,6 +42,28 @@ STEP 2: INGESTION AND ROI ALIGNMENT
 3. Reject features that do not directly support the primary business drivers or lack clear value metrics.
 
 ==================================================
+STEP 2B: RACI REFERENCE INGESTION
+==================================================
+Before mapping governance authorities, resolve guidance for each domain,
+checking in this exact priority order:
+
+1. PROJECT-SPECIFIC: If `references/raci-matrix.md` is present and names
+   a standing default Accountable owner (an actual name/title) for a
+   domain in this project, pre-fill it, tagged: "[PROJECT DEFAULT —
+   CONFIRM APPLIES TO THIS PROJECT]".
+2. GLOBAL ROLE-TYPE BASELINE: Otherwise, if `references/global-standards.md`
+   is present, use its Universal RACI Baseline to surface the expected
+   role TYPE for each position (e.g., Accountable is typically framed as
+   "Product Sponsor / Business Owner," not a specific name). Tag:
+   "[GLOBAL ROLE-TYPE: <role description>]". This tells the human what
+   kind of person to look for — it is not itself an answer.
+3. Neither source changes accountable_owner_status away from MISSING.
+   A role-type description is not an individual; a project-specific
+   standing default is a suggestion, not this project's sign-off. Only
+   an explicit human-supplied name/title, confirmed in this conversation,
+   satisfies Step 3's Hard Constraint below.
+
+==================================================
 
 STEP 3: RACI GOVERNANCE MATRIX
 
@@ -51,7 +73,7 @@ STEP 3: RACI GOVERNANCE MATRIX
 - Consulted (C): Subject Matter Experts (SMEs).
 - Informed (I): Stakeholders receiving updates.
 
-2. Hard Constraint: If an explicit Accountable (A) owner is missing for any domain decision area, this sets node_1_status: BLOCKED for the whole digest. This does not stop Step 4 from running — the full scope, personas, and Boundary Assumptions Registry still get generated and shown. Only the Node 2 handoff instruction is withheld until an Accountable owner is supplied.
+2. Hard Constraint: If an explicit, human-confirmed Accountable (A) owner is missing for any domain decision area — including a domain that only has an unconfirmed "[PROJECT DEFAULT — CONFIRM APPLIES TO THIS PROJECT]" pre-fill or a "[GLOBAL ROLE-TYPE: ...]" hint — this sets node_1_status: BLOCKED for the whole digest. This does not stop Step 4 from running — the full scope, personas, and Boundary Assumptions Registry still get generated and shown. Only the Node 2 handoff instruction is withheld until an Accountable owner is confirmed.
 
 ==================================================
 
@@ -111,7 +133,8 @@ executive_intake:
 
 raci_matrix:
   - domain: ""              # decision area
-    accountable: ""         # Name/Title, or "MISSING"
+    accountable: ""         # Name/Title, "MISSING", or an unconfirmed pre-fill/hint
+    accountable_source: ""  # "[CONFIRMED]", "[PROJECT DEFAULT — CONFIRM APPLIES TO THIS PROJECT]", "[GLOBAL ROLE-TYPE: <desc>]", or "" if MISSING
     responsible: []
     consulted: []
     informed: []
@@ -172,6 +195,7 @@ do rather than doing it, delete that sentence instead.
 ==================================================
 OPERATIONAL RULES:
 ==================================================
+- REFERENCE PRECEDENCE: references/raci-matrix.md can suggest a standing default owner; references/global-standards.md can only suggest a role type. Neither can confirm one. Only an explicit human confirmation in this conversation satisfies the Hard Constraint in Step 3.
 - DSM INTEGRITY: Never generate this digest's header with an inferred or default DSM_Tier. If Node 0's value isn't present and unambiguous, halt per the Compliance Gate above.
 - PERSONA INTEGRITY: Never invent an end-user persona that isn't present in the raw intake or the Node 0 digest. If none is explicitly stated for a capability, use [BA TO CONFIRM] rather than reusing a persona from elsewhere in the document for convenience.
 - HANDOFF PROTOCOL: Force a hard stop. Explicitly instruct the user to copy your ENTIRE response (the data payload + this digest) and paste it into Node 2.

@@ -23,10 +23,11 @@ Enterprise-Foundry/
 │   ├── node-3-backlog.md      # INVEST Slicing & Active Story Lock
 │   ├── node-4-qa.md           # Gherkin BDD Engine (Happy/Negative/Edge)
 │   └── node-5-jira.md         # Zero-Debt Jira Ticket Synthesizer
-├── references/                # Project Reference Documents
-│   ├── dor-checklist.md       # Project Definition of Ready Rules
-│   ├── nfr-standards.md       # NFR Rules
-│   └── raci-matrix.md         # Stakeholder Management
+├── references/                # Org-specific standards — ACTIVELY INGESTED, not just documentation
+│   ├── global-standards.md    # Populated core knowledge vault — Domain-Specific NFR Matrix, Universal RACI role-types, DSM thresholds, Universal DoR checklist (Nodes 0, 1, 5)
+│   ├── dor-checklist.md       # Per-engagement DoR criteria override (Node 5) — empty until a specific project needs to add its own
+│   ├── nfr-standards.md       # Per-engagement NFR override (Node 0) — empty until a specific project needs to add its own
+│   └── raci-matrix.md         # Per-engagement standing Accountable owners (Node 1) — empty until a specific project needs to add its own
 ├── 00-raw-inputs/             # Raw PDFs, meeting notes, transcripts, RFPs
 ├── 01-node0-preflight/        # Output for Pre-flight audit report & Quarantine digests
 ├── 02-node1-scope/            # Output for Bounded MVP scope, RACI matrix & assumptions
@@ -172,4 +173,8 @@ AFTER GENERATING NEW OUTPUTS:
   - `[INFERRED FROM CONTEXT — BA TO CONFIRM]` — an NFR logically implied by another stated fact, pending confirmation (Node 0, Tier L3).
   - `[PERFORMANCE ASSERTION BLOCKED - ...]` — a Gherkin assertion that would otherwise require a numeric bound Node 0 never resolved (Node 4).
   - `[ACCEPTED RISK — DSM:HIGH, NO SLA DEFINED, PROCEEDING ON HUMAN AUTHORIZATION]` — an NFR that triggered the DSM-Tier Escalation Rule, where a human explicitly chose to proceed without a value rather than supply one (Node 0).
+  - `[PROJECT STANDARD]` / `[GLOBAL DOMAIN: <name>]` / `[GLOBAL DEFAULT]` — the source tag on every NFR category, showing whether it came from a per-engagement override, `global-standards.md`'s domain-specific matrix, or the built-in fallback (Node 0).
+  - `[PROJECT DEFAULT — CONFIRM APPLIES TO THIS PROJECT]` / `[GLOBAL ROLE-TYPE: <description>]` — an unconfirmed Accountable owner suggestion, either a per-engagement standing default or a role-type hint from `global-standards.md`'s RACI baseline. Neither counts as confirmed (Node 1).
+  - `[PROJECT DoR CRITERION]` / `[GLOBAL DoR CRITERION]` — an additional Definition of Ready check sourced from a reference file, always additive, never a relaxation of the built-in checks (Node 5).
+* **Reference Precedence:** Two tiers of reference data exist, in priority order — a per-engagement override file (`nfr-standards.md`, `raci-matrix.md`, `dor-checklist.md`, empty until a specific project needs one) above `global-standards.md` (the populated core knowledge vault). Neither tier controls the pipeline's own enforcement: they supply which standard applies, which role type is expected, or which additional criteria must pass — never whether Zero-Inference, tiering, the DSM-Tier Escalation Rule, or a human sign-off can be bypassed. A missing or incomplete reference file at any tier simply falls through to the next; it never halts a node. Note that `global-standards.md`'s RACI baseline gives role *types* ("Product Sponsor / Business Owner"), not names — it can only help a human find the right person faster, never confirm one on its own.
 * **Pipeline Status Enforcement:** Output tickets remain locked in `BLOCKED` status within the Definition of Ready until all architectural schema tokens are supplied by engineering.
