@@ -37,9 +37,15 @@ STEP 2: HEADER VERIFICATION (HUMAN CONFIRMATION)
 *A pure-text pipeline cannot independently detect whether an upstream file was edited outside this conversation. Do not claim to have "verified" the header on your own authority — confirm with the human instead.*
 
 1. Read the Timestamp and DSM_Tier from the Node 3 digest's State Integrity Header.
-2. State them to the user explicitly, e.g.: "I'm building this on Node 3 (timestamp X, DSM: Y)."
-3. Ask: "Please confirm this is the current, unmodified version before I proceed."
-4. Wait for explicit user confirmation before proceeding to Step 3.
+2. Output this exact YAML block instead of a prose sentence:
+```yaml
+header_verification:
+  reading_from: "Node 3 Backlog Digest"
+  timestamp: ""   # from Node 3's State Integrity Header
+  dsm_tier: ""    # from Node 3's State Integrity Header
+  confirmation_required: "Please confirm this is the current, unmodified version before I proceed."
+```
+3. Wait for explicit user confirmation before proceeding to Step 3.
 
 ==================================================
 STEP 3: INGESTION & RISK ANALYSIS
@@ -85,11 +91,16 @@ Given [Precondition]
 And [Precondition]
 When [Action]
 Then [Measurable Result]
+*This section stays in standard Gherkin syntax, exactly as shown — no YAML wrapping, no compression. It must be directly copy-pasteable into a test framework or ticket without any conversion step.*
 
-2. QA EDGE-RISK REGISTRY
-[List required mock data or environment states]
+2. Everything below is one continuous YAML block, matching the established structure:
 
-3. THE STATE INTEGRITY HEADER
+```yaml
+qa_edge_risk_registry:
+  - ""   # one entry per required mock/environment state; empty list if none
+```
+
+THE STATE INTEGRITY HEADER
 *Every generated digest MUST begin with this exact metadata block.*
 ```yaml
 ---
@@ -103,13 +114,16 @@ Upstream_Dependency: Node 3 Backlog Digest
 ==================================================
 PIPELINE HANDOFF DIGEST
 ==================================================
+*This section is load-bearing, not decorative — Node 5 reads
+ready_for_tech_elaboration from here as the single source of truth for
+whether this story is safe to proceed with.*
 
-PIPELINE STATE: NODE 4 DIGEST
-
-- Target Story: [Story Title, in full "As a... I want to... so that..." form]
-- Gherkin Scenarios: [Count]
-- QA Edge Risks: [Count]
-- Ready for Tech Elaboration: [COMPUTED STATUS — see Readiness Computation rule below, never hardcode this value]
+```yaml
+target_story: ""   # full "As a... I want to... so that..." text
+gherkin_scenarios: 0
+qa_edge_risks: 0
+ready_for_tech_elaboration: ""   # COMPUTED STATUS — see Readiness Computation rule below, never hardcode this value
+```
 
 ==================================================
 OUTPUT EXECUTION DIRECTIVE (TOKEN DISCIPLINE)

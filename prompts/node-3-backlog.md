@@ -21,9 +21,15 @@ STEP 1: HEADER VERIFICATION (HUMAN CONFIRMATION)
 *A pure-text pipeline cannot independently detect whether an upstream file was edited outside this conversation. Do not claim to have "verified" the header on your own authority — confirm with the human instead.*
 
 1. Read the Timestamp and DSM_Tier from the Node 2 digest's State Integrity Header.
-2. State them to the user explicitly, e.g.: "I'm building this on Node 2 (timestamp X, DSM: Y)."
-3. Ask: "Please confirm this is the current, unmodified version before I proceed."
-4. Wait for explicit user confirmation before proceeding to Step 2.
+2. Output this exact YAML block instead of a prose sentence:
+```yaml
+header_verification:
+  reading_from: "Node 2 UI Architecture Digest"
+  timestamp: ""   # from Node 2's State Integrity Header
+  dsm_tier: ""    # from Node 2's State Integrity Header
+  confirmation_required: "Please confirm this is the current, unmodified version before I proceed."
+```
+3. Wait for explicit user confirmation before proceeding to Step 2.
 
 ==================================================
 STEP 2: INGESTION & INVEST SLICING
@@ -47,18 +53,27 @@ STEP 3: STORY STRUCTURING, PERSONA SOURCING & FORCING FUNCTION
 STEP 4: OUTPUT FORMAT & STATE DIGEST GENERATION
 ==================================================
 
-Generate the response strictly using this format:
+Generate the response strictly using this format — everything below is one continuous YAML block:
 
-1. JIRA BACKLOG HIERARCHY
-Epic: [Name]
-  Feature: [Name]
-    Story 1: [Title] - As a [Persona], I want to [Action], so that [Measurable Value].
-    Story 2: [Title] - As a [Persona], I want to [Action], so that [Measurable Value].
+```yaml
+jira_backlog_hierarchy:
+  epic: ""
+  features:
+    - feature: ""
+      stories:
+        - title: ""
+          full_text: ""   # complete "As a [Persona], I want to [Action], so that [Measurable Value]." — never shortened; Node 4 and Node 5 both read this exact string
+  # one features entry per Feature, one stories entry per Story
 
-2. DEPENDENCY MAP
-[List structural blockers, including any story where Persona or Value could not be sourced and was set to [BA TO CONFIRM]]
+node_3_status: "CLEAR"   # this node has no Class A-equivalent blocker beyond the DSM Compliance Gate above
 
-3. THE STATE INTEGRITY HEADER
+dependency_map:
+  - story: ""
+    blocked_by: ""   # dependency name, OR "[BA TO CONFIRM]" if Persona/Value could not be sourced
+  # one entry per blocker; empty list if none
+```
+
+THE STATE INTEGRITY HEADER
 *Every generated digest MUST begin with this exact metadata block.*
 ```yaml
 ---
@@ -72,13 +87,15 @@ Upstream_Dependency: Node 2 UI Architecture Digest
 ==================================================
 PIPELINE HANDOFF DIGEST
 ==================================================
+*This section is load-bearing, not decorative — Node 4 ingests ONLY the
+active_story field below, not the full backlog hierarchy above.*
 
-PIPELINE STATE: NODE 3 DIGEST
-
-- Epic Name: [Name]
-- Total Stories Sliced: [Count]
-- ACTIVE STORY FOR NODE 4: [Title of the SINGLE selected story, in full "As a... I want to... so that..." form]
-- Dependency Flags: [Count]
+```yaml
+epic_name: ""
+total_stories_sliced: 0
+active_story_for_node_4: ""   # full "As a... I want to... so that..." text of the ONE selected story
+dependency_flags: 0
+```
 
 ==================================================
 OUTPUT EXECUTION DIRECTIVE (TOKEN DISCIPLINE)

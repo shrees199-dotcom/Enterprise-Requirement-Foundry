@@ -1,3 +1,4 @@
+
 ## Executive Overview & Architectural Philosophy
 
 The **Enterprise Requirement Foundry** is a zero-infrastructure, platform-agnostic specification engine for Product Managers, Lead Business Analysts, and Enterprise Architects.
@@ -5,7 +6,7 @@ The **Enterprise Requirement Foundry** is a zero-infrastructure, platform-agnost
 Unlike conventional AI tools that generate unconstrained narrative text or fabricate non-existent technical contracts, the Foundry operates on three strict architectural invariants:
 
 1. **The Zero-Inference Imperative:** The engine never fabricates API endpoints, database schemas, or qualitative non-functional requirements (NFRs). Unsupplied data is explicitly tagged using standard fallback tokens (`[BA TO CONFIRM]` or `[ARCHITECT TO SUPPLY]`).
-2. **Hard Circuit Breakers:** Pipeline execution automatically halts at Node 0 or Node 1 only for the highest-severity gaps — an NFR with no numeric value and no applicable industry standard (Tier L4), a missing Accountable governance owner, or an unresolved quarantine flag. NFRs that lack an explicit number but match a recognized industry standard (Tier L2) or are strongly implied by other stated facts (Tier L3) are generated and tagged for confirmation rather than halting the pipeline outright.
+2. **Hard Circuit Breakers:** Three mechanisms can stop this pipeline moving forward, and they don't all behave the same way. **Step 0's DSM Classification Gate** is a true full halt — nothing else is generated until the human answers. **Node 0's DSM-Tier Escalation Rule** and **Node 1's missing-Accountable-owner check** work differently: the full analysis is still generated and shown in both cases — architectural dependencies, NFR baseline, RACI, scope, everything — only the handoff instruction to the next node is withheld until the human resolves the blocking item(s). The Escalation Rule specifically fires only when an NFR has no evidence at any tier (L4) *and* DSM_Tier is High; the same L4 gap under Medium or Low DSM is logged and carried forward, not blocking. NFRs matching a recognized industry standard (Tier L2) or strongly implied by other stated facts (Tier L3) never reach any of this — they're generated and tagged for later confirmation.
 3. **Progressive State Digest Handoffs:** Nodes communicate exclusively via immutable Markdown state files saved directly to the local directory structure, ensuring 100% auditability and context window optimization.
 
 ---
@@ -55,7 +56,7 @@ Enterprise-Foundry/
 └──────────────┘     └──────────────┘     └──────────────┘
 
 ``` 
-1. **Node 0 (Pre-Flight & NFR Baseline):** Rejects qualitative statements (e.g., "fast", "scalable") with no supporting basis, and enforces numeric SLAs (MTTR <= 30 min, CFR < 5%) — either stated directly, drawn from a recognized industry standard, or strongly implied by other stated facts. Only NFRs with no numeric basis at all are quarantined and halt the pipeline.
+1. **Node 0 (Pre-Flight & NFR Baseline):** Rejects qualitative statements (e.g., "fast", "scalable") with no supporting basis, and enforces numeric SLAs (MTTR <= 30 min, CFR < 5%) — either stated directly, drawn from a recognized industry standard, or strongly implied by other stated facts. An NFR with no basis at any tier is logged and carried forward — it only blocks the handoff to Node 1 if the project's DSM tier is High.
 2. **Node 1 (Scope & RACI Synthesis):** Establishes single Accountable sign-off and applies the Boundary Assumption Protocol to clear non-blocking scope gaps.
 3. **Node 2 (UI Architecture & Behavioral Flows):** Renders Mermaid sequence diagrams, ASCII wireframes, and unmapped race conditions.
 4. **Node 3 (Backlog Slicing & Single-Story Lock):** Enforces INVEST criteria and isolates exactly one high-risk story for downstream elaboration.
@@ -170,5 +171,5 @@ AFTER GENERATING NEW OUTPUTS:
   - `[INDUSTRY STANDARD — BA TO CONFIRM APPLICABILITY]` — an NFR defaulted to a recognized standard, pending confirmation it actually applies (Node 0, Tier L2).
   - `[INFERRED FROM CONTEXT — BA TO CONFIRM]` — an NFR logically implied by another stated fact, pending confirmation (Node 0, Tier L3).
   - `[PERFORMANCE ASSERTION BLOCKED - ...]` — a Gherkin assertion that would otherwise require a numeric bound Node 0 never resolved (Node 4).
-  - `[PIPELINE HALTED: HARD ARCHITECTURAL BLOCKER]` — a Class A boundary assumption failure (Node 1).
+  - `[ACCEPTED RISK — DSM:HIGH, NO SLA DEFINED, PROCEEDING ON HUMAN AUTHORIZATION]` — an NFR that triggered the DSM-Tier Escalation Rule, where a human explicitly chose to proceed without a value rather than supply one (Node 0).
 * **Pipeline Status Enforcement:** Output tickets remain locked in `BLOCKED` status within the Definition of Ready until all architectural schema tokens are supplied by engineering.

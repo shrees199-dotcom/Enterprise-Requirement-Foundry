@@ -21,9 +21,15 @@ STEP 1: HEADER VERIFICATION (HUMAN CONFIRMATION)
 *A pure-text pipeline cannot independently detect whether an upstream file was edited outside this conversation. Do not claim to have "verified" the header on your own authority — confirm with the human instead.*
 
 1. Read the Timestamp and DSM_Tier from the Node 0 digest's State Integrity Header.
-2. State them to the user explicitly, e.g.: "I'm building this on Node 0 (timestamp X, DSM: Y)."
-3. Ask: "Please confirm this is the current, unmodified version before I proceed."
-4. Wait for explicit user confirmation before proceeding to Step 2.
+2. Output this exact YAML block instead of a prose sentence:
+```yaml
+header_verification:
+  reading_from: "Node 0 Preflight Digest"
+  timestamp: ""   # from Node 0's State Integrity Header
+  dsm_tier: ""    # from Node 0's State Integrity Header
+  confirmation_required: "Please confirm this is the current, unmodified version before I proceed."
+```
+3. Wait for explicit user confirmation before proceeding to Step 2.
 
 ==================================================
 EXECUTION STEPS
@@ -45,7 +51,7 @@ STEP 3: RACI GOVERNANCE MATRIX
 - Consulted (C): Subject Matter Experts (SMEs).
 - Informed (I): Stakeholders receiving updates.
 
-2. Hard Constraint: If an explicit Accountable (A) owner is missing, set Accountable Status: MISSING and halt execution.
+2. Hard Constraint: If an explicit Accountable (A) owner is missing for any domain decision area, this sets node_1_status: BLOCKED for the whole digest. This does not stop Step 4 from running — the full scope, personas, and Boundary Assumptions Registry still get generated and shown. Only the Node 2 handoff instruction is withheld until an Accountable owner is supplied.
 
 ==================================================
 
@@ -62,7 +68,7 @@ Extract the actual end-users of the system (e.g., "Retail Customer," "Warehouse 
 - To prevent unhandled dependencies from floating downstream while avoiding unnecessary pipeline halts on non-critical items, apply this rule:
 - Class A: Hard Architectural Blockers
   - Definition: Missing security compliance criteria, missing Accountable sign-off, or unverified core integrations required for basic system operation.
-  - Action: Output [PIPELINE HALTED: HARD ARCHITECTURAL BLOCKER] and stop all downstream handoffs.
+  - Action: Add the item to `blocking_items` in the output and set node_1_status: BLOCKED. Step 4 still runs in full for every other section — this does not stop the rest of the digest from being generated, only the Node 2 handoff at the end.
 - Class B: Non-Blocking Scope Ambiguities
   - Definition: Minor domain boundaries, optional reporting capabilities, or deferred channel features.
   - Action: DO NOT pass raw [BA TO CONFIRM] tags downstream. The model MUST convert the ambiguity into an Explicit Boundary Assumption:
@@ -91,31 +97,48 @@ Quarantine Trigger: If any of the checks above surfaces a misclassification, an 
 OUTPUT FORMAT AND STATE DIGEST
 ==================================================
 
-Write the output directly to 02-node1-scope/node1-scope-digest.md using the following layout:
+Write the output directly to 02-node1-scope/node1-scope-digest.md using the following layout. Always generate every section in full, exactly like Node 0 — a blocking item withholds only the Node 2 handoff at the end, never the analysis itself. This must visually match Node 0's output structure: one continuous YAML block, not a mix of tables and bracket-text.
 
-- Node 1 - Scope, Intake and RACI Synthesis Report
+```yaml
+node_1_status: ""   # CLEAR, or BLOCKED if any Class A hard blocker exists
+project_name: ""
+target_milestone: ""   # phase/release target, e.g. "MVP — single on-footprint region"
 
-1. Executive Intake and ROI Alignment
-[Business Context, Core Drivers, and Quantified ROI Targets]
+executive_intake:
+  business_context: ""
+  core_drivers: []
+  roi_targets: []   # quantified only; use [BA TO CONFIRM] per target if the intake gives no number
 
-2. RACI Governance Matrix
-[Structured RACI Table mapped to specific domain decision areas]
-- Accountable Owner: [Confirmed Name / Title]
+raci_matrix:
+  - domain: ""              # decision area
+    accountable: ""         # Name/Title, or "MISSING"
+    responsible: []
+    consulted: []
+    informed: []
+  # one entry per domain decision area found in the intake
 
-3. MVP Scope Boundaries
-- In-Scope (Phase 1)
-  - [Explicit list of core domain capabilities and functional workflows]
-- Deferred (Phase 2+)
-  - [Explicit list of capabilities deferred to future phases]
-- Target End-User Personas
-  - [Explicit list of end-user personas extracted from intake, e.g. "Retail Customer", "Warehouse Manager" — or [BA TO CONFIRM] per capability if none was explicitly stated]
+accountable_owner_status: ""   # "CONFIRMED: [Name/Title]" or "MISSING"
+blocking_items: []
+  # Populated only if accountable_owner_status is MISSING, or another
+  # Class A item exists (missing security compliance criteria, unverified
+  # core integration required for basic operation). Each entry names the
+  # specific blocker and why it's Class A, not Class B.
 
-4. Boundary Assumptions Registry
-| Item / Capability | Original Status | Applied Boundary Assumption | Operational Justification |
-|---|---|---|---|
-| [Capability Name] | [BA TO CONFIRM] | [IN-SCOPE / DEFERRED] | [Strategic Reasoning] |
+mvp_scope_boundaries:
+  in_scope_phase1: []
+  deferred_phase2: []
+  target_personas: []       # from raw intake / Node 0 only; [BA TO CONFIRM] per capability if none stated
 
-5. THE STATE INTEGRITY HEADER
+boundary_assumptions_registry:
+  - item: ""                # capability name
+    original_status: "[BA TO CONFIRM]"
+    applied_assumption: ""  # IN-SCOPE or DEFERRED
+    justification: ""
+  # Class B only. A genuine Class A blocker never appears here — it goes
+  # in blocking_items above instead.
+```
+
+THE STATE INTEGRITY HEADER
 *Every generated digest MUST begin with this exact metadata block.*
 ```yaml
 ---
@@ -126,22 +149,16 @@ Upstream_Dependency: Node 0 Preflight Digest
 ---
 ```
 
-6. Pipeline State Digest
-```yaml
-PIPELINE STATE: AGENT 1 DIGEST
 ==================================================
-Project Name: [Project Name]
-Target Milestone: [Phase / Release Target]
-Accountable Owner Status: [CONFIRMED / MISSING]
-Hard Architectural Blockers: 0
-Target Personas Identified: [Count, including any left as [BA TO CONFIRM]]
-Boundary Assumptions Converted: [Count]
-Open Quarantine Tags: 0
-MVP Scope Lock Status: LOCKED
-Active In-Scope Domains: [List of active domains]
-Circuits Cleared: Proceeding to Node 2 (UI Architecture and Flow)
+RESOLUTION & HANDOFF (READ node_1_status FIRST)
 ==================================================
-```
+- IF node_1_status: BLOCKED — do NOT instruct the user to proceed to
+  Node 2. Instead end the response with: "Please supply [name each
+  blocking item]." Once supplied, regenerate this entire digest with
+  node_1_status: CLEAR and blocking_items cleared.
+- IF node_1_status: CLEAR — Force a hard stop. Explicitly instruct the
+  user to copy your ENTIRE response (the data payload + this digest) and
+  paste it into Node 2.
 ==================================================
 OUTPUT EXECUTION DIRECTIVE (TOKEN DISCIPLINE)
 ==================================================

@@ -34,9 +34,22 @@ STEP 2: HEADER VERIFICATION (HUMAN CONFIRMATION)
 *A pure-text pipeline cannot independently detect whether an upstream file was edited outside this conversation. Do not claim to have "verified" the header on your own authority — confirm with the human instead.*
 
 1. Read the Timestamp and DSM_Tier from each of the three upstream digests' State Integrity Headers.
-2. State them back to the user explicitly, e.g.: "I'm building this ticket using Node 0 (timestamp X, DSM: Y), Node 1 (timestamp X, DSM: Y), and Node 4 (timestamp X, DSM: Y)."
-3. Ask: "Please confirm these are still the current, unmodified versions before I finalize the ticket."
-4. Wait for explicit user confirmation before proceeding to Step 3.
+2. Output this exact YAML block instead of a prose sentence:
+```yaml
+header_verification:
+  upstream_digests:
+    - reading_from: "Node 0 Preflight Digest"
+      timestamp: ""
+      dsm_tier: ""
+    - reading_from: "Node 1 Scope Digest"
+      timestamp: ""
+      dsm_tier: ""
+    - reading_from: "Node 4 QA Digest"
+      timestamp: ""
+      dsm_tier: ""
+  confirmation_required: "Please confirm these are still the current, unmodified versions before I finalize the ticket."
+```
+3. Wait for explicit user confirmation before proceeding to Step 3.
 
 ==================================================
 STEP 3: ZERO-INFERENCE MAPPING
@@ -81,27 +94,39 @@ Upstream_Dependency: [Node 0 Preflight, Node 1 Scope, Node 4 QA]
 
 [TICKET TITLE] (Format: [Epic Name] - [Story Title])
 
-1. BUSINESS VALUE (ROI)
-*As a [Persona], I want to [Action], so that [Measurable Value].*
+Everything below is one continuous YAML block:
 
-2. ACCEPTANCE CRITERIA (GHERKIN)
-[Insert exact BDD Scenarios from Node 4 — do not paraphrase or summarize them]
+```yaml
+business_value:
+  persona: ""      # "As a [Persona]"
+  action: ""       # "I want to [Action]"
+  value: ""        # "so that [Measurable Value]"
 
-3. TECHNICAL & DATA DEPENDENCIES
-* Target State/System: [Extracted from upstream]
-* API/Data Models Required: [Extracted from upstream or flagged as TBD per Step 3]
+acceptance_criteria_gherkin: |
+  # Insert exact BDD Scenarios from Node 4 — do not paraphrase or summarize them.
+  # This stays literal Gherkin syntax inside the YAML block scalar (the | above),
+  # not converted to YAML keys — Gherkin syntax IS the acceptance criteria and
+  # must remain directly copy-pasteable out of this block into a test framework.
 
-4. NON-FUNCTIONAL REQUIREMENTS (SLAs)
-[Insert mapped NFRs from Node 0, validated against DSM tier]
+technical_data_dependencies:
+  target_state_system: ""
+  api_data_models_required: ""   # or "[TBD - ARCHITECT TO SUPPLY]" per Step 3
 
-5. RACI & GOVERNANCE
-* Accountable Owner: [Name/Role, from Node 1]
-* DSM Classification: [High/Medium/Low, confirmed in Step 2]
+non_functional_requirements:
+  performance: ""
+  security: ""
+  resilience: ""
+  accessibility: ""
 
-==================================================
-Ticket Status: [BLOCKED / READY FOR SPRINT — per Step 4 computation, not discretionary]
-Unresolved Tokens: [Exact count from Step 4]
-==================================================
+raci_governance:
+  accountable_owner: ""   # Name/Role, from Node 1
+  dsm_classification: ""  # High/Medium/Low, confirmed in Step 2
+
+ticket_status: ""        # BLOCKED / READY FOR SPRINT — per Step 4 computation, not discretionary
+unresolved_tokens: 0     # exact count from Step 4
+```
+
+*Note: this ticket body is no longer guaranteed to be directly paste-ready into a Jira/ADO description field without reformatting — that tradeoff was made deliberately, in favor of consistency with the rest of the pipeline's output format.*
 
 ==================================================
 OUTPUT EXECUTION DIRECTIVE (TOKEN DISCIPLINE)

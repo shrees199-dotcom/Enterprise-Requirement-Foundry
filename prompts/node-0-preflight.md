@@ -53,12 +53,57 @@ classify it into exactly one tier:
 - L4 — No Evidence: None of the above apply. Quarantine per Step 3 as
   originally written: "[INVALID NFR FORMAT - BA MUST DEFINE NUMERIC SLA]".
 
-Only L4 halts by default. L2 and L3 items are generated and tagged, not
-blocked — they still require human confirmation, but they don't stall
-the pipeline on an obvious default. If the raw intake explicitly states
-something like "pre-approve L2 standards for [named domain]," treat
-matching L2 items as CONFIRMED rather than tagged, and log this in the
-Quarantine Flags section as "PRE-APPROVED, NOT A GAP."
+Only L4 triggers quarantine by default. Quarantining an item halts the
+model from fabricating a plausible-sounding value for that specific
+NFR — it does NOT halt this node's completion or its handoff to Node 1.
+L2 and L3 items are generated and tagged, not quarantined at all — they
+still require human confirmation, but they don't even reach the
+quarantine step. If the raw intake explicitly states something like
+"pre-approve L2 standards for [named domain]," treat matching L2 items
+as CONFIRMED rather than tagged, and log this in the Quarantine Flags
+section as "PRE-APPROVED, NOT A GAP."
+
+Quarantined L4 items are logged in the Quarantine Flags section and
+carried forward in the digest exactly as unresolved. They are not
+required to be resolved before proceeding to Node 1 — Node 1's Class A/B
+Boundary Assumption Protocol and Node 5's Definition of Ready computation
+are where accumulated unresolved items ultimately compute a BLOCKED
+status. The only node-level, cannot-proceed halt in this file is Step 0's
+DSM Classification Gate above — nothing in Step 2B or Step 3 stops this
+node from completing and handing off — **except the DSM-Tier Escalation
+Rule below, which is the one case where an L4 item does become blocking.**
+
+==================================================
+DSM-TIER ESCALATION RULE (WHEN L4 BECOMES BLOCKING)
+==================================================
+An L4 item's real-world severity depends on the DSM tier it occurs
+under, not on the evidence tier alone. A missing Performance baseline
+on a Low-sensitivity internal tool is a normal early-stage gap. The same
+gap on a High-sensitivity system carries real architectural risk that
+shouldn't just be waved through to scope decisions in Node 1.
+
+Apply this rule after classifying all NFRs:
+- DSM_Tier = High: any NFR that resolved to L4 is promoted from
+  "logged_unresolved" to "blocking."
+- DSM_Tier = Medium or Low: L4 items stay in "logged_unresolved" exactly
+  as described above — this rule does not apply.
+- This rule never applies to L1, L2, or L3 items, regardless of DSM
+  tier — they all have real evidence behind them; only L4 ("no evidence
+  at all") triggers this escalation.
+
+WHEN "blocking" IS NON-EMPTY (this rule triggered): Still generate the
+full digest per Step 4 below — Architectural Dependencies, the complete
+NFR Baseline, and Quarantine Status all shown, exactly as when CLEAR.
+Set node_0_status: BLOCKED and populate the blocking list. The only
+thing withheld is the Node 1 handoff instruction — see Resolution &
+Handoff under Step 4 for the exact wording to end the response with.
+
+Once the user responds, regenerate the full digest:
+- If they supplied a real value, that NFR is now L1 — use it as-is.
+- If they explicitly accepted the risk, move the item from "blocking" to
+  "logged_unresolved," tagged exactly: "[ACCEPTED RISK — DSM:HIGH, NO SLA
+  DEFINED, PROCEEDING ON HUMAN AUTHORIZATION]" — do not silently clear it
+  as if it were resolved.
 
 ==================================================
 STEP 3: THE ANTI-SMUGGLING PROTOCOL (SEPARATE-PASS VERIFICATION)
@@ -72,28 +117,46 @@ STEP 3: THE ANTI-SMUGGLING PROTOCOL (SEPARATE-PASS VERIFICATION)
    - NON-VIOLATION: "Dashboard load time <= 2 seconds at p95." → numeric + unit present → compliant, keep as-is.
    - VIOLATION: "The system must be enterprise-grade and highly available." → banned terms, no number attached → quarantine, even though the phrasing sounds technical.
    - NON-VIOLATION: "MTTR: [BA TO CONFIRM] — client said 'quick recovery' but gave no target." → already correctly quarantined via the fallback token → do not re-flag this as a new violation; this is the system working as intended.
-4. Quarantine Trigger: If a banned word is found without an adjacent numeric unit, DELETE the generated NFR. Halt execution and log a `[BA TO CONFIRM]` quarantine flag in its place. Do not silently substitute a plausible-sounding number instead of quarantining — inventing "200ms" because it sounds reasonable is exactly the failure this step exists to prevent.
+4. Quarantine Trigger: If a banned word is found without an adjacent numeric unit, DELETE the generated NFR and log a `[BA TO CONFIRM]` quarantine flag in its place. This stops the fabrication of a plausible-sounding value for that one NFR — it does not stop this node from completing the rest of the digest or handing off to Node 1. Do not silently substitute a plausible-sounding number instead of quarantining — inventing "200ms" because it sounds reasonable is exactly the failure this step exists to prevent.
 
 ==================================================
 STEP 4: OUTPUT FORMAT & STATE DIGEST GENERATION
 ==================================================
-Generate the response strictly using this format:
+Always generate the full digest below — do not suppress or truncate any
+section just because a blocking item exists. Blocking status controls
+only whether the Node 1 handoff is given at the end, not whether the
+analysis itself is shown. Populate every field — do not leave the schema
+keys as literal placeholders.
 
-1. ARCHITECTURAL DEPENDENCIES
-- Known Systems:
-- API/Integration Needs:
-- Data Storage Assumptions:
+```yaml
+node_0_status: ""   # CLEAR, or BLOCKED if the DSM-Tier Escalation Rule fired
 
-2. NFR BASELINE
-- Performance:
-- Security:
-- Resilience:
-- Accessibility:
+architectural_dependencies:
+  known_systems: []          # short names only
+  api_integration_needs: []  # one line each; include the fallback tag AND
+                              # a short reason if there's a real conflict
+                              # or ambiguity, not just the bare tag
+  data_storage_assumptions: []
 
-3. QUARANTINE FLAGS (TECHNICAL AMBIGUITIES)
-- [List unresolved tech debt requiring clarification]
+nfr_baseline:
+  performance: ""    # one of: a numeric value; an L2/L3 tag+value;
+                      # "LOGGED_L4 (non-blocking)" if DSM is Medium/Low;
+                      # or "BLOCKED — no defined value; DSM:High" if the
+                      # Escalation Rule fired on this item
+  security: ""
+  resilience: ""
+  accessibility: ""
 
-4. THE STATE INTEGRITY HEADER
+quarantine_status:
+  blocking: []
+  # Populated only when the DSM-Tier Escalation Rule fires on an L4 item.
+  # Every entry here must also appear in nfr_baseline above tagged BLOCKED.
+  logged_unresolved: []
+  # L4 items that did NOT escalate (DSM Medium/Low), plus every other
+  # named ambiguity. Carried forward, not blocking.
+```
+
+THE STATE INTEGRITY HEADER
 *Every generated digest MUST begin with this exact metadata block.*
 ```yaml
 ---
@@ -103,6 +166,22 @@ DSM_Tier: [The exact High/Medium/Low value the user provided in Step 0 — never
 Upstream_Dependency: Raw Intake
 ---
 ```
+
+==================================================
+RESOLUTION & HANDOFF (READ node_0_status FIRST)
+==================================================
+- IF node_0_status: BLOCKED — do NOT instruct the user to proceed to
+  Node 1. Instead, end the response with: "Please either (a) supply the
+  actual target now for [list each blocked NFR by name], or (b)
+  explicitly confirm you accept these as open risks and want to proceed
+  without them." Once the user responds, regenerate this entire digest:
+  a supplied value makes that NFR L1; an accepted risk moves it from
+  `blocking` to `logged_unresolved`, tagged exactly "[ACCEPTED RISK —
+  DSM:HIGH, NO SLA DEFINED, PROCEEDING ON HUMAN AUTHORIZATION]" — never
+  silently cleared as if resolved.
+- IF node_0_status: CLEAR — Force a hard stop. Explicitly instruct the
+  user to copy your ENTIRE response (the data payload + this digest) and
+  paste it into Node 1.
 ==================================================
 OUTPUT EXECUTION DIRECTIVE (TOKEN DISCIPLINE)
 ==================================================
@@ -117,4 +196,5 @@ do rather than doing it, delete that sentence instead.
 OPERATIONAL RULES:
 ==================================================
 - ORIGINATION RESPONSIBILITY: This node is the sole origination point for DSM_Tier. If Step 0 has not been completed with an explicit human answer, no other section of this digest may be generated.
+- ESCALATION RESPONSIBILITY: If the DSM-Tier Escalation Rule produces any blocking item, the full digest is still generated in full — architectural dependencies, NFR baseline, and quarantine status all shown — but the Node 1 handoff instruction is withheld until the user resolves each blocked item per the Resolution & Handoff rule in Step 4.
 - HANDOFF PROTOCOL: Force a hard stop. Explicitly instruct the user to copy your ENTIRE response (the data payload + this digest) and paste it into Node 1.

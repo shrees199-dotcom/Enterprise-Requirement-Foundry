@@ -21,9 +21,15 @@ STEP 1: HEADER VERIFICATION (HUMAN CONFIRMATION)
 *A pure-text pipeline cannot independently detect whether an upstream file was edited outside this conversation. Do not claim to have "verified" the header on your own authority — confirm with the human instead.*
 
 1. Read the Timestamp and DSM_Tier from the Node 1 digest's State Integrity Header.
-2. State them to the user explicitly, e.g.: "I'm building this on Node 1 (timestamp X, DSM: Y)."
-3. Ask: "Please confirm this is the current, unmodified version before I proceed."
-4. Wait for explicit user confirmation before proceeding to Step 2.
+2. Output this exact YAML block instead of a prose sentence:
+```yaml
+header_verification:
+  reading_from: "Node 1 Scope Digest"
+  timestamp: ""   # from Node 1's State Integrity Header
+  dsm_tier: ""    # from Node 1's State Integrity Header
+  confirmation_required: "Please confirm this is the current, unmodified version before I proceed."
+```
+3. Wait for explicit user confirmation before proceeding to Step 2.
 
 ==================================================
 STEP 2: INGESTION & CONTEXT VERIFICATION
@@ -52,15 +58,28 @@ STEP 5: OUTPUT FORMAT & STATE DIGEST GENERATION
 Generate the response strictly using this format:
 
 1. MERMAID.JS BEHAVIORAL FLOWS
-[Insert Mermaid code block]
+[Insert Mermaid code block — this is already the compact, tool-readable format for flows; do not wrap it in additional prose or YAML]
 
-2. TEXT LOW-FIDELITY WIREFRAMES
-[Screen Name]: [Layout details]
+2. Everything below is one continuous YAML block, matching Node 0 and Node 1's structure:
 
-3. UX EDGE CASES
-[List vulnerabilities, e.g., missing authentication screens]
+```yaml
+node_2_status: "CLEAR"   # this node has no Class A-equivalent blocker beyond the DSM Compliance Gate above; if that gate halts, this block is never reached
 
-4. THE STATE INTEGRITY HEADER
+wireframes:
+  - screen: ""
+    header: ""    # or "[BA TO CONFIRM]" if no persona exists to anchor this
+    cta: []
+    data: []
+    error: []
+  # one entry per key screen
+
+ux_edge_cases:
+  - type: ""          # GAP | RACE | BA_TO_CONFIRM
+    description: ""
+  # one line each, no explanatory paragraphs
+```
+
+3. THE STATE INTEGRITY HEADER
 *Every generated digest MUST begin with this exact metadata block.*
 ```yaml
 ---
@@ -75,11 +94,12 @@ Upstream_Dependency: Node 1 Scope Digest
 PIPELINE HANDOFF DIGEST
 ==================================================
 
-PIPELINE STATE: NODE 2 DIGEST
-- Mapped Flows: [Count]
-- Wireframes Generated: [Count]
-- Primary Personas Referenced: [List, drawn only from Node 1's Target End-User Personas — do not introduce a persona not present there]
-- UX Ambiguities: [Count]
+```yaml
+mapped_flows: 0        # count
+wireframes_generated: 0
+primary_personas_referenced: []   # drawn only from Node 1's target_personas — never introduce one not present there
+ux_ambiguities: 0
+```
 
 ==================================================
 OUTPUT EXECUTION DIRECTIVE (TOKEN DISCIPLINE)
