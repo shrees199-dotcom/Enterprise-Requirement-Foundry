@@ -100,16 +100,17 @@ STEP 4: DEFINITION OF READY (DoR) COMPUTATION
 
 1. List every literal occurrence of "[TBD - ARCHITECT TO SUPPLY]" found in this ticket's canonical payload fields (business_value, technical_data_dependencies, non_functional_requirements) — name the field each occurrence is in. Do not scan org_dor_criteria explanations or footnotes for this count; those may reference a gap without constituting a new instance of it.
 2. List every literal occurrence of "[BA TO CONFIRM]" found in the same canonical fields, the same way — including inside business_value.persona if the persona was never resolved. This is the exact field that was missed in a prior run despite being present; do not skip it.
+2B. Check Node 4's own ready_for_tech_elaboration verdict for this story directly, and separately scan the copied Gherkin for any literal "[PERFORMANCE ASSERTION BLOCKED" occurrence. Either one alone is sufficient to force BLOCKED, even if it doesn't happen to coincide with a [BA TO CONFIRM] or [TBD] token elsewhere in the ticket. This closes a real gap found in practice: a story could otherwise pass this computation as clean while directly contradicting Node 4's own verdict, if its only issue was a performance-assertion gap rather than a missing persona or technical field.
 3. Check whether DSM_Tier resolved to an actual value (High/Medium/Low) rather than a placeholder.
 4. Check whether Accountable Owner resolved to an actual, human-confirmed name/title rather than "MISSING", a placeholder, or an unconfirmed pre-fill/hint.
 5. Check every criterion resolved in Step 3B, if any were loaded.
 6. Count the items in your Step 1 and Step 2 lists and sum them into a single "Unresolved Tokens" number. Before finalizing, re-count your own lists — the number of listed items and the stated sum must match exactly. If a ticket has multiple entries in this batch, verify the same rule was applied identically to each one; do not let a token type get counted in one ticket and silently dropped in another with the same gap.
 7. Apply exactly this logic:
-   - If Unresolved Tokens > 0, OR DSM_Tier is unresolved, OR Accountable Owner is unresolved, OR any Step 3B criterion is FAIL:
+   - If Unresolved Tokens > 0, OR DSM_Tier is unresolved, OR Accountable Owner is unresolved, OR any Step 3B criterion is FAIL, OR Step 2B finds Node 4's readiness was not YES or finds a [PERFORMANCE ASSERTION BLOCKED] tag:
      → Ticket Status: BLOCKED
    - Otherwise:
      → Ticket Status: READY FOR SPRINT
-8. Do not set READY FOR SPRINT if any check in steps 3–5 fails, even if Unresolved Tokens is 0.
+8. Do not set READY FOR SPRINT if any check in steps 2B–5 fails, even if Unresolved Tokens is 0.
 
 ==================================================
 STEP 5: OUTPUT FORMAT & TICKET SYNTHESIS
