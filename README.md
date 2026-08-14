@@ -144,6 +144,36 @@ Either way, before ingesting a new raw input file, check whether the target outp
 
 ---
 
+## Versioning, Renaming, and Manually Editing Digest Files
+
+### Referencing a renamed or versioned file
+
+None of the node specs, and none of the example commands above, contain any "find the newest file" or "detect a renamed version" logic. Every example command assumes the canonical default filename set at Cold Start. If you rename a digest — e.g., `node0-digest-preclient-review.md` — the pipeline has no way to know that's the file you mean unless you say so explicitly:
+
+> Execute Node 1, reading the Node 0 digest from `01-node0-preflight/node0-digest-preclient-review.md`.
+
+Always state the exact path in the command itself. A rename alone does nothing.
+
+### Prefer git history over manual renaming for tracing what happened
+
+Since this repo is git-tracked, commit history already gives you a full trace of how each digest evolved — who changed what, and when — without the ambiguity risk of multiple similarly-named files sitting in one folder (see "Running Multiple Projects Through One Repo" above for why that risk is worth avoiding). Editing a digest in place and committing it is generally cleaner than keeping numbered copies. Use named checkpoints only when you deliberately want a permanent snapshot at a specific milestone (e.g., `node0-digest-post-client-signoff.md`), and always reference them by explicit path per above.
+
+### Manually editing a digest's content — source fields vs. computed fields
+
+Every digest contains two kinds of fields:
+- **Source fields** — actual facts: an NFR value, a persona name, a technical dependency, a RACI entry. Safe to hand-edit directly.
+- **Computed fields** — `node_X_status`, `ticket_status`, `ready_for_tech_elaboration`, `blocking_items`, `unresolved_tokens`, and similar. These are *derived* from the source fields by that node's own mechanical logic (see the DoR Computation and Readiness Computation rules in Nodes 4 and 5). **Never hand-edit these directly.** Manually flipping `BLOCKED` to `CLEAR` without the underlying source fields actually changing produces a document that looks resolved but isn't — and nothing downstream is guaranteed to catch that.
+
+The safe pattern: edit the source field, then explicitly tell whichever node you invoke next to **recompute status from the source fields rather than trusting any status field already present in the file**. This forces the mechanical logic to re-run fresh against the real data.
+
+For most real updates — a newly confirmed SLA, a resolved persona, a name for a missing Accountable owner — the safer and simpler path is feeding the new fact back into the conversation with the node it actually originated from, and letting that node regenerate a complete, internally consistent digest (see "Back-Propagate a Scope Change" above). This guarantees source and computed fields move together, which hand-editing does not.
+
+### An honest limitation, not a solved problem
+
+Zero-Inference protects against the *AI* inventing a value. It cannot detect a *human* typing a fabricated value directly into a digest file outside the conversation — a properly-earned "200ms" and a hand-typed fake "200ms" are textually identical to the next node. This is a trust boundary around whoever edits the file, not something further prompt design can close. One real, existing safeguard worth knowing: Node 5's Definition of Ready computation always re-derives its status from raw field content and literal token counts, never from a trusted inbound status flag — so even a hand-edited upstream digest still gets caught at the final gate if a real gap remains.
+
+---
+
 ## Multi-Machine Synchronization Protocol
 
 To sync work between multiple machines (e.g., Windows and Mac) using GitHub Desktop:
