@@ -98,12 +98,12 @@ STEP 4: DEFINITION OF READY (DoR) COMPUTATION
 
 *This status is a mechanical count, not a judgment call. Apply this rule exactly — do not override it based on how "close" the ticket feels to ready.*
 
-1. Count every literal occurrence of "[TBD - ARCHITECT TO SUPPLY]" in the assembled ticket body.
-2. Count every literal occurrence of "[BA TO CONFIRM]" in the assembled ticket body.
+1. List every literal occurrence of "[TBD - ARCHITECT TO SUPPLY]" found in this ticket's canonical payload fields (business_value, technical_data_dependencies, non_functional_requirements) — name the field each occurrence is in. Do not scan org_dor_criteria explanations or footnotes for this count; those may reference a gap without constituting a new instance of it.
+2. List every literal occurrence of "[BA TO CONFIRM]" found in the same canonical fields, the same way — including inside business_value.persona if the persona was never resolved. This is the exact field that was missed in a prior run despite being present; do not skip it.
 3. Check whether DSM_Tier resolved to an actual value (High/Medium/Low) rather than a placeholder.
 4. Check whether Accountable Owner resolved to an actual, human-confirmed name/title rather than "MISSING", a placeholder, or an unconfirmed pre-fill/hint.
 5. Check every criterion resolved in Step 3B, if any were loaded.
-6. Sum the counts from steps 1–2 into a single "Unresolved Tokens" number.
+6. Count the items in your Step 1 and Step 2 lists and sum them into a single "Unresolved Tokens" number. Before finalizing, re-count your own lists — the number of listed items and the stated sum must match exactly. If a ticket has multiple entries in this batch, verify the same rule was applied identically to each one; do not let a token type get counted in one ticket and silently dropped in another with the same gap.
 7. Apply exactly this logic:
    - If Unresolved Tokens > 0, OR DSM_Tier is unresolved, OR Accountable Owner is unresolved, OR any Step 3B criterion is FAIL:
      → Ticket Status: BLOCKED
@@ -129,9 +129,13 @@ Upstream_Dependency: [Node 0 Preflight, Node 1 Scope, Node 4 QA]
 
 [TICKET TITLE] (Format: [Epic Name] - [Story Title])
 
+Before assembling this ticket, check every upstream digest for any explicit non-canonical marker — language such as "MANUAL OVERRIDE," "not a rubric-based selection," "non-canonical relative to the pipeline's normal isolation protocol," or an explicit instruction to flag something to Node 5. If any upstream digest contains this, it MUST populate `upstream_selection_note` below — silently absorbing it into your own reasoning without surfacing it in the ticket is a real handoff failure, not a minor omission. This has happened before: a Node 4 digest explicitly requested this flag be carried forward, and it was dropped.
+
 Everything below is one continuous YAML block:
 
 ```yaml
+upstream_selection_note: ""   # populate ONLY if an upstream digest flagged itself as a manual override or non-canonical selection, quoting or closely paraphrasing that flag; leave "" if no such flag exists upstream
+
 business_value:
   persona: ""      # "As a [Persona]"
   action: ""       # "I want to [Action]"
