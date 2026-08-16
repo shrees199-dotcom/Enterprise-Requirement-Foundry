@@ -47,6 +47,15 @@ STEP 2B: RACI REFERENCE INGESTION
 Before mapping governance authorities, resolve guidance for each domain,
 checking in this exact priority order:
 
+0. CONFIRMED VALUES FIRST: Check whether this project already has a prior
+   confirmed Node 1 digest with a real, human-confirmed Accountable
+   name/title for this domain (not merely a "[PROJECT DEFAULT]" or
+   "[GLOBAL ROLE-TYPE]" suggestion, but an actual confirmed answer). If
+   so, carry that confirmed value forward unchanged and skip the rest of
+   this step for that domain — a reference file update (a new or revised
+   entry in raci-matrix.md or global-standards.md) never revisits or
+   overwrites a domain that's already resolved. Reference data only ever
+   fills domains still genuinely unresolved.
 1. PROJECT-SPECIFIC: If `references/raci-matrix.md` is present and names
    a standing default Accountable owner (an actual name/title) for a
    domain in this project, pre-fill it, tagged: "[PROJECT DEFAULT —
@@ -196,6 +205,7 @@ do rather than doing it, delete that sentence instead.
 OPERATIONAL RULES:
 ==================================================
 - REFERENCE PRECEDENCE: references/raci-matrix.md can suggest a standing default owner; references/global-standards.md can only suggest a role type. Neither can confirm one. Only an explicit human confirmation in this conversation satisfies the Hard Constraint in Step 3.
+- CONFIRMED VALUES OUTRANK REFERENCE UPDATES: If this project already has a prior confirmed digest and a reference file changes afterward (a new or revised entry in raci-matrix.md or global-standards.md), that update only fills domains still genuinely unresolved — it never revises a domain whose Accountable owner a human already confirmed. See Step 2B.0.
 - DSM INTEGRITY: Never generate this digest's header with an inferred or default DSM_Tier. If Node 0's value isn't present and unambiguous, halt per the Compliance Gate above.
 - PERSONA INTEGRITY: Never invent an end-user persona that isn't present in the raw intake or the Node 0 digest. If none is explicitly stated for a capability, use [BA TO CONFIRM] rather than reusing a persona from elsewhere in the document for convenience.
 - HANDOFF PROTOCOL: Force a hard stop. Explicitly instruct the user to copy your ENTIRE response (the data payload + this digest) and paste it into Node 2.
