@@ -77,7 +77,9 @@ classify it into exactly one tier:
   matrix), or a widely recognized named global standard unambiguously
   applies given the domain even without any reference file (e.g.,
   PCI-DSS for payment card data, WCAG 2.1 AA as the default accessibility
-  baseline for public-facing web UI). Tag exactly per whichever source
+  baseline for any UI with real human end users — public-facing or
+  internal/staff-facing alike, since accessibility needs don't depend on
+  whether the audience is external). Tag exactly per whichever source
   actually applied: "[PROJECT STANDARD — BA TO CONFIRM APPLICABILITY]",
   "[GLOBAL DOMAIN: <domain> — BA TO CONFIRM APPLICABILITY]", or
   "[INDUSTRY STANDARD — BA TO CONFIRM APPLICABILITY]" for the
