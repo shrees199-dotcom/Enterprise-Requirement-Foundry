@@ -1,4 +1,9 @@
 
+[![Claude](https://img.shields.io/badge/Claude-Anthropic-D97757?style=for-the-badge&logo=anthropic&logoColor=white)](https://claude.ai)
+[![Google Gemini](https://img.shields.io/badge/Google-Gemini_Gems-8E75B2?style=for-the-badge&logo=googlebard&logoColor=white)](https://gemini.google.com)
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/83825ec3-6b1a-488b-b316-c9d2da21389d" />
+
+
 ## Executive Overview & Architectural Philosophy
 
 The **Enterprise Requirement Foundry** is a zero-infrastructure, platform-agnostic specification engine for Product Managers, Lead Business Analysts, and Enterprise Architects.
@@ -189,9 +194,26 @@ AFTER GENERATING NEW OUTPUTS:
 3. Click "Commit to main" -> Click "Push origin".
 
 ```
-
 ---
 
+[![Dify](https://img.shields.io/badge/Dify-Platform-1C64F2?style=for-the-badge&logo=github&logoColor=white)](https://github.com/langgenius/dify)
+[![Docker](https://img.shields.io/badge/Docker-Desktop-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/products/docker-desktop/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-black?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.com)
+[![Meta Llama](https://img.shields.io/badge/Meta-Llama_3.2-0467DF?style=for-the-badge&logo=meta&logoColor=white)](https://www.llama.com)
+
+<img width="994" height="431" alt="image" src="https://github.com/user-attachments/assets/108cc7ec-9467-4d45-b631-ac063ad39fbb" />
+
+## An alternate free of cost Experiment
+
+* **Orchestration Engine:** Hosted on a local Dify deployment, utilizing LlamA 3.2 to execute deterministic, temperature-zero logic.
+* **6-Node State Machine:** Transforms unstructured stakeholder intake into zero-debt, BDD-tested Jira payloads using explicit node-to-node variable chaining (`{Node_X.text}`) rather than fragile chatbot memory.
+* **Zero-Inference Governance:** Operates as a headless Directed Acyclic Graph (DAG). If a critical constraint (e.g., DSM Tier, RACI) is missing, the model outputs strict `[MISSING]` tags instead of hallucinating, enforcing human-in-the-loop resolution.
+
+<img width="5919" height="880" alt="Foundry POC-whole-workflow" src="https://github.com/user-attachments/assets/e0ea7251-7b95-4048-a9cb-29509537afe0" />
+<img width="360" height="387" alt="image" src="https://github.com/user-attachments/assets/ef85a5d6-2d35-4f86-a23f-2fdec2febc8a" />
+
+
+---
 ## Quality & Governance Standards
 
 * **Prompt Structure Standard:** Every prompt file in `prompts/` opens with a `Persona:` and `Objective:` declaration, then proceeds through numbered `STEP` sections (including the DSM Continuous Compliance Gate, Header Verification, and node-specific execution logic), and closes with `OPERATIONAL RULES`. All nodes conclude with an `OUTPUT EXECUTION DIRECTIVE (TOKEN DISCIPLINE)` instructing the model to suppress conversational filler and begin output immediately.
@@ -209,3 +231,12 @@ AFTER GENERATING NEW OUTPUTS:
 * **Reference Precedence:** Two tiers of reference data exist, in priority order — a per-engagement override file (`nfr-standards.md`, `raci-matrix.md`, `dor-checklist.md`, empty until a specific project needs one) above `global-standards.md` (the populated core knowledge vault). Neither tier controls the pipeline's own enforcement: they supply which standard applies, which role type is expected, or which additional criteria must pass — never whether Zero-Inference, tiering, the DSM-Tier Escalation Rule, or a human sign-off can be bypassed. A missing or incomplete reference file at any tier simply falls through to the next; it never halts a node. Note that `global-standards.md`'s RACI baseline gives role *types* ("Product Sponsor / Business Owner"), not names — it can only help a human find the right person faster, never confirm one on its own.
 * **Confirmed Values Outrank Reference Updates:** If a project already has a prior confirmed digest and a reference file changes afterward, that update only fills fields still genuinely unresolved — it never revisits or silently overwrites a DSM tier, an Accountable owner, or any other field a human already confirmed in an earlier run. This matters specifically for the "Updated Projects" case (re-running a node to pick up new reference data on an existing project) — without this rule, an unrelated reference update could quietly downgrade an already-answered field back to "needs reconfirmation." Node 0 and Node 1 both implement this explicitly.
 * **Pipeline Status Enforcement:** Output tickets remain locked in `BLOCKED` status within the Definition of Ready until all architectural schema tokens are supplied by engineering.
+
+---
+
+## UPCOMING CHANGES 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Post_Incident_Requirement_Trace-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/shrees199-dotcom/Post-Incident-Requirement-Trace)
+
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/18a8e699-8121-4c95-b629-8beaf4b0fb4e" />
+
+
