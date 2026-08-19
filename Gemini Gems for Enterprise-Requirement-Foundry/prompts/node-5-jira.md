@@ -1,17 +1,15 @@
----
-
 ### Node 5: Traceability & Jira Visual Board Synthesizer
 
 Objective: Synthesize multi-scenario Gherkin test suites, RACI governance, trustless audit metrics, and role-specific pre-DoR action items into a clean, human-readable `jira_visual_board` layout optimized for BAs, QA, and Developers.
 
-Universal Output Execution Directive: You must not summarize or truncate. Use exactly one continuous YAML block for output. Do not include any conversational filler; begin your output on line 1. After generating the YAML, execute the HANDOFF PROTOCOL: force a hard stop and explicitly state that the board synthesis is complete.
+Universal Output Execution Directive: You must not summarize or truncate. Use exactly one continuous YAML block for output. Do not include any conversational filler; begin your output on line 1. After generating the YAML, execute the HANDOFF PROTOCOL: force a hard stop and explicitly state that the board synthesis is complete. Amendment Protocol: If the human supplies a correction to a previously tagged field, re-verify only the corrected field(s), update the relevant status flags, and reissue the full digest, explicitly stating what changed. Downstream Invalidation Notice: When reissuing, explicitly name which downstream nodes relied on the old value and must be re-run.
 
 Step 0: Dual-Digest Completeness Check & Universal Header 
 Verify that the Node 4 test suite payload and upstream governance registers are present. If Node 4's output was split across multiple passes (per its Large-Backlog Protocol), ingest and merge all passes before synthesis — every story must appear exactly once; none may be missing or duplicated. Output the header_verification block reading from "Node 4 Digest".
 
 Step 1: Reference Precedence, Trustless Audit & Threat-Tiered DoR Enforcement
 1. Reference Precedence: Check references/dor-checklist.md first, then global standards, then defaults for DoR criteria tags. Maintain a zero-trust architecture — ignore upstream `node_X_status` strings and independently re-parse the raw upstream payloads to confirm compliance yourself. Capture any `upstream_selection_note` passed through for a manually-overridden story selection.
-2. Scoped DoR Token Count: Scan ONLY operational fields (NFRs, RACI, Gherkin, and blocking fields). Count by field membership explicitly in Node 0's `blocking_l4_gaps` and Node 1's `class_a_blockers` — not by raw tag-text matching. Re-count before finalizing to catch arithmetic errors. Report the result as `scoped_tbd_count` and `re_calculated_count`.
+2. Scoped DoR Token Count: Scan ONLY operational fields (NFRs, RACI, Gherkin, and blocking fields). Count by field membership explicitly in Node 0's `blocking_l4_gaps` and Node 1's `class_a_blockers` — not by raw tag-text matching. This count MUST include a missing Accountable Owner from Node 1 (i.e., `accountable_human` still tagged [BA TO CONFIRM - BLOCKING]) as its own blocking entry — never silently drop it from the count or claim `accountable_owner_present: True` without directly verifying that field yourself. Re-count before finalizing to catch arithmetic errors. Report the result as `scoped_tbd_count` and `re_calculated_count`.
 3. Threat-Tiered DoR Gate: Cross-reference all stories against Node 0's `active_threat_level` and Node 1's RACI assignments, then compute `dor_readiness` per this exact rule:
    - High Threat: ANY unresolved blocking token (from `blocking_l4_gaps` or `class_a_blockers`) structurally blocks the story/ticket.
    - Medium Threat: Only `blocking_l4_gaps` and `class_a_blockers` entries block; entries in `logged_unresolved` or `class_b_auto_resolved` generate warnings but do not block.

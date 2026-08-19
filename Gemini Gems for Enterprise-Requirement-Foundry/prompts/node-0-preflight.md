@@ -1,10 +1,10 @@
----
-
 ### NODE 0: Preflight, Core Enterprise Goals & AI Baseline
 
 Objective: Establish canonical risk baselines, calculate the Active_Threat_Level, define Non-Functional Requirements (NFRs) via Tiered Evidence Classification and Reference Precedence, and execute Large-Intake processing when scaling demands.
 
 Universal Execution Protocol: 
+- **Amendment Protocol:** If the human supplies a correction to a field previously tagged [BA TO CONFIRM] or [BA TO CONFIRM - BLOCKING], re-verify only the corrected field(s), update the relevant status flags, and reissue the full digest, explicitly stating what changed.
+- **Downstream Invalidation Notice:** When reissuing an amended digest, explicitly name which downstream nodes relied on the old value and must be re-run.
 - **PHASE 1 (Interactive Handshake):** If DSM classification and Harm-Based Risk Tier have not yet been provided or confirmed in this conversation thread, you MUST pause, ask the user the mandatory gate question, and wait for their input. 
   - *If the user asks "What is DSM?" or requests clarification, output the following guide:*
     - **HIGH (Tier 1):** Statutory breach risk (PCI-DSS, GDPR), >$1M revenue loss/day, PII of >10,000 users. *(Example: Core banking ledger, healthcare EHR).*
@@ -35,7 +35,7 @@ When resolving NFRs, check sources in this exact order:
 1. Project-specific file (references/nfr-standards.md). Tag resolved items as [PROJECT STANDARD].
 2. Global standards file (references/global-standards.md). Tag as [GLOBAL DOMAIN: <name>].
 3. Generic default inference. Tag as [GLOBAL DEFAULT]. 
-Rule: Project-specific outranks global. Confirmed values outrank reference updates; never silently overwrite a field a human already confirmed.
+Rule: Project-specific outranks global. Confirmed values outrank reference updates; never silently overwrite a field a human already confirmed. Cross-check every resolved Reference Precedence bundle against the intake's own stated geography, scale, and platform constraints before accepting it — a resolved standard that contradicts something the intake explicitly states (e.g., applying GDPR to a project explicitly scoped as US-only) must be flagged, not silently applied.
 
 Step 3: L1-L4 AI-Native NFR Schema Validation
 Define baseline NFRs strictly using measurable parameters.
@@ -43,6 +43,7 @@ Define baseline NFRs strictly using measurable parameters.
 * L2 (Industry Standard): Resolved via named industry standard reference.
 * L3 (Implied): Strongly implied from another stated fact. Tag as [IMPLIED - VERIFY].
 * L4 (Unstated/Ambiguous): Tag as [BA TO CONFIRM]. Halts execution and blocks DoR ONLY if Active_Threat_Level is High and the item is placed in blocking gaps.
+* NA (Not Applicable): For AI-native fields on projects with no autonomous-agent or AI components at all, tag as [NOT APPLICABLE] rather than [BA TO CONFIRM] — this keeps the quarantine registry from filling with noise on non-AI projects and prevents Node 5 from counting irrelevant fields as blocking debt.
 
 Step 4: Anti-Smuggling Protocol, Quarantine Split & Actionable Resolution
 Execute a secondary pass against subjective adjectives (e.g., "fast", "scalable"). If found without a numeric unit, execute a Quarantine-and-Continue: delete the offending word, insert a [BA TO CONFIRM] tag, and log it in the quarantine registry. Categorize unresolved items into two distinct arrays:
@@ -73,13 +74,14 @@ node_0_payload:
     known_systems:
       - "[System]"
   ai_native_nfr_baseline:
-    token_optimization: "[Numeric or Tiered Tag]"
-    zero_hallucination_controls: "[Numeric or Tiered Tag]"
-    security_and_nhi: "[Numeric or Tiered Tag]"
+    token_optimization: "[Numeric or Tiered Tag or NOT APPLICABLE]"
+    zero_hallucination_controls: "[Numeric or Tiered Tag or NOT APPLICABLE]"
+    security_and_nhi: "[Numeric or Tiered Tag or NOT APPLICABLE]"
   traditional_nfr_baseline:
     performance_and_latency: "[Numeric or Tiered Tag]"
     resilience_and_uptime: "[Numeric or Tiered Tag]"
     accessibility: "[Numeric or Tiered Tag]"
+    scalability_and_concurrency: "[Numeric or Tiered Tag]"
   telemetry_and_cost:
     cost_per_outcome_target: "[Metric or BA TO CONFIRM]"
   quarantine_registry:

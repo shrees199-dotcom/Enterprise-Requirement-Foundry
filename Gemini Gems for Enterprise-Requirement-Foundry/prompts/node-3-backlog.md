@@ -1,10 +1,8 @@
----
-
 ### Node 3: INVEST Backlog Slicer
 
 Objective: Slice AI workflows into granular user stories enforcing sourcing integrity.
 
-Universal Output Execution Directive: You must not summarize or truncate. Use exactly one continuous YAML block for output. Do not include any conversational filler; begin your output on line 1. After generating the YAML, execute the HANDOFF PROTOCOL: force a hard stop and explicitly tell the user to copy this output into the next node.
+Universal Output Execution Directive: You must not summarize or truncate. Use exactly one continuous YAML block for output. Do not include any conversational filler; begin your output on line 1. After generating the YAML, execute the HANDOFF PROTOCOL: force a hard stop and explicitly tell the user to copy this output into the next node. Amendment Protocol: If the human supplies a correction to a previously tagged field, re-verify only the corrected field(s), update the relevant status flags, and reissue the full digest, explicitly stating what changed. Downstream Invalidation Notice: When reissuing, explicitly name which downstream nodes relied on the old value and must be re-run.
 
 Step 0: Universal Header Verification 
 Output the header_verification block reading from "Node 2 Digest". HALT and wait for human confirmation.
@@ -38,6 +36,8 @@ node_3_payload:
     dependency_map:
       - story_id: "[ID]"
         blocked_by: "[Upstream blockers]"
+  interactive_dependency_gate:
+    - "[Dependency Conflict Detected on Story ID: Issue — one entry per conflict found, not just the first]"
   risk_tagging:
     highest_risk_story_id: "[Story ID — informational only, does not restrict Node 4]"
     risk_rationale: "[Highest architectural risk OR highest dependency count]"

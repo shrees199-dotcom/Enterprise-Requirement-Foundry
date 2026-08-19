@@ -1,10 +1,8 @@
----
-
 ### Node 1: Scope, NHI RACI & Transition Synthesizer
 
 Objective: Transform baselines into a bounded MVP scope, mapping NHIs and enforcing boundary assumptions.
 
-Universal Output Execution Directive: You must not summarize or truncate. Use exactly one continuous YAML block for output. Do not include any conversational filler; begin your output on line 1. After generating the YAML, execute the HANDOFF PROTOCOL: force a hard stop and explicitly tell the user to copy this output into the next node.
+Universal Output Execution Directive: You must not summarize or truncate. Use exactly one continuous YAML block for output. Do not include any conversational filler; begin your output on line 1. After generating the YAML, execute the HANDOFF PROTOCOL: force a hard stop and explicitly tell the user to copy this output into the next node. Amendment Protocol: If the human supplies a correction to a previously tagged field, re-verify only the corrected field(s), update the relevant status flags, and reissue the full digest, explicitly stating what changed. Downstream Invalidation Notice: When reissuing, explicitly name which downstream nodes relied on the old value and must be re-run.
 
 Step 0: Universal Header Verification 
 Output the header_verification block reading from "Node 0 Digest". HALT and wait for human confirmation. If upstream data introduces new severe PII, trigger a Compliance Emergency Full Halt.
